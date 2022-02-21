@@ -38,12 +38,6 @@ const ThoughtSchema = new Schema(
          minLength: 1,
          maxLength: 280,
       },
-      email: {
-         type: String,
-         unique: true,
-         required: true,
-         trim: true,
-      },
       createdAt: {
          type: Date,
          default: Date.now,
