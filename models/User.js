@@ -13,6 +13,12 @@ const UserSchema = new Schema(
          unique: true,
          required: true,
          trim: true,
+         validate: {
+            validator: function (v) {
+               return /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/.test(v);
+            },
+            message: (props) => `${props.value} is not a valid email address!`,
+         },
       },
       thoughts: [
          {
@@ -31,6 +37,7 @@ const UserSchema = new Schema(
       toJSON: {
          virtuals: true,
       },
+      id: false,
    }
 );
 
