@@ -38,32 +38,29 @@ const thoughtController = {
    },
 
    // add thought
-   addThought({ params, body }, res) {
-      console.log(body);
-      // create new thought
-      Thought.create(body)
-         // then update user thoughts field
-         .then((dbThoughtData) => {
-            User.findOneAndUpdate(
-               { username: body.username },
-               { $push: { thoughts: dbThoughtData._id } },
-               { new: true }
-            ).then((dbUserData) => {
-               // check if that user existed
-               if (!dbUserData) {
-                  res.status(404).json([
-                     {
-                        message:
-                           "Thought posted, but no user found with this name!",
-                     },
-                     dbThoughtData,
-                  ]);
-                  return;
-               }
-               res.json(dbThoughtData);
-            });
+   addThought({ body }, res) {
+      // check if username exists
+      User.findOne({ username: body.username })
+         .then((dbFriendData) => {
+            if (!dbFriendData) {
+               res.status(404).json({
+                  message: "No user found with this username!",
+               });
+               return;
+            }
+            // then create new thought
+            Thought.create(body)
+               // then update user thoughts field
+               .then((dbThoughtData) => {
+                  User.findOneAndUpdate(
+                     { username: body.username },
+                     { $push: { thoughts: dbThoughtData._id } },
+                     { new: true }
+                  ).then((dbUserData) => {
+                     res.json([dbThoughtData, dbUserData]);
+                  });
+               });
          })
-
          .catch((err) => res.status(400).json(err));
    },
 
