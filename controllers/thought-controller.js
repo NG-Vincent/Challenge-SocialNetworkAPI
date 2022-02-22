@@ -49,6 +49,7 @@ const thoughtController = {
                { $push: { thoughts: dbThoughtData._id } },
                { new: true }
             ).then((dbUserData) => {
+               // check if that user existed
                if (!dbUserData) {
                   res.status(404).json([
                      {
