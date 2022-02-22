@@ -15,7 +15,7 @@ const thoughtController = {
 
    // get one thought by id
    getThoughtById({ params }, res) {
-      Thought.findOne({ _id: params.id })
+      Thought.findOne({ _id: params.thoughtId })
          .populate({
             path: "reactions",
             select: "-__v",
@@ -43,22 +43,26 @@ const thoughtController = {
       // create new thought
       Thought.create(body)
          // then update user thoughts field
-         .then(({ _id }) => {
-            return User.findOneAndUpdate(
+         .then((dbThoughtData) => {
+            User.findOneAndUpdate(
                { username: body.username },
-               { $push: { thoughts: _id } },
+               { $push: { thoughts: dbThoughtData._id } },
                { new: true }
-            );
+            ).then((dbUserData) => {
+               if (!dbUserData) {
+                  res.status(404).json([
+                     {
+                        message:
+                           "Thought posted, but no user found with this name!",
+                     },
+                     dbThoughtData,
+                  ]);
+                  return;
+               }
+               res.json(dbThoughtData);
+            });
          })
-         .then((dbUserData) => {
-            if (!dbUserData) {
-               res.status(404).json({
-                  message: "No user found with this name!",
-               });
-               return;
-            }
-            res.json(dbUserData);
-         })
+
          .catch((err) => res.status(400).json(err));
    },
 
